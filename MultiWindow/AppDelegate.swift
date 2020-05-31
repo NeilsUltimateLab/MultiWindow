@@ -13,35 +13,73 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    var anotherWindow: UIWindow?
-
-    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        let vc = ViewController.navController()
-        window = UIWindow()
-        window?.rootViewController = vc
-        window?.makeKeyAndVisible()
-        
-        let vc2 = SecondWindowViewController.navController()
-        vc2.view.backgroundColor = .yellow
-        anotherWindow = UIWindow()
-        anotherWindow?.rootViewController = vc2
-        anotherWindow?.makeKeyAndVisible()
-        return true
-    }
+    var additionalWindows: [UIWindow] = []
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        if let frame = window?.frame {
-            let new = CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.width, height: frame.height/2)
-            window?.frame = new
-            window?.layer.cornerRadius = 15
-            window?.layer.masksToBounds = true
-            window?.superview?.backgroundColor = .yellow
-            anotherWindow?.frame = CGRect(x: frame.origin.x, y: (frame.height/2)+2, width: frame.width, height: (frame.height/2) - 2)
-            anotherWindow?.layer.cornerRadius = 15
-            anotherWindow?.layer.masksToBounds = true
+        
+        let vc = ViewController.navController()
+        let frame = UIScreen.main.bounds
+        
+        window = UIWindow(frame: CGRect(x: frame.origin.x, y: frame.origin.y, width: frame.width, height: frame.height/2))
+        window?.rootViewController = vc
+        window?.makeKeyAndVisible()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            let newRootViewController = SecondWindowViewController.navController()
+            newRootViewController.view.backgroundColor = .yellow
+            
+            let newWindow = UIWindow(frame: CGRect(x: frame.origin.x, y: (frame.height/2)+2, width: frame.width, height: (frame.height/2) - 2))
+            newWindow.rootViewController = newRootViewController
+            newWindow.isHidden = false
+            self.additionalWindows.append(newWindow)
+            newWindow.alpha = 0
+            newWindow.frame.size = .zero
+            newWindow.frame.origin = CGPoint(x: frame.midX, y: frame.midY)
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+                newWindow.alpha = 1
+                newWindow.frame.origin = CGPoint(x: frame.origin.x, y: frame.midY)
+                newWindow.frame.size = CGSize(width: frame.width, height: (frame.height/2) - 2)
+            }, completion: nil)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                self.close(window: newWindow)
+            }
         }
+        
+        
         return true
+    }
+    
+    func close(window: UIWindow, animated: Bool = true) {
+        guard
+            let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+            let index = appDelegate.additionalWindows.firstIndex(of: window)
+        else { return }
+        
+        func remove() {
+            window.isHidden = true
+            appDelegate.additionalWindows.remove(at: index)
+        }
+        
+        if animated {
+            let timingParameters = UISpringTimingParameters(dampingRatio: 0.9)
+            let animator = UIViewPropertyAnimator(duration: 0.7, timingParameters: timingParameters)
+            
+            animator.addAnimations {
+                window.alpha = 0
+                window.frame = CGRect(x: window.frame.midX, y: window.frame.midY, width: 0, height: 0)
+            }
+            
+            animator.addCompletion { _ in
+                remove()
+            }
+            
+            animator.startAnimation()
+        } else {
+            remove()
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

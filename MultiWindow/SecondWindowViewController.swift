@@ -39,6 +39,9 @@ class SecondWindowViewController: UIViewController {
         self.navigationController?.navigationBar.delegate = self
     }
     
+    deinit {
+        print("Deinit called from SecondWindowViewController")
+    }
 }
 
 extension SecondWindowViewController: UINavigationBarDelegate {
