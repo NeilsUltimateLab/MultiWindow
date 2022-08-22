@@ -44,9 +44,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }, completion: nil)
             
             // To close the new window uncomment below code.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
-                self.close(window: newWindow)
-            }
+            //DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+            //    self.close(window: newWindow)
+            //}
         }
         
         
