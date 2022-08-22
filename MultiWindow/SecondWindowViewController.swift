@@ -17,7 +17,7 @@ class SecondWindowViewController: UIViewController {
         return UINavigationController(rootViewController: vc)
     }
     
-    var button: UIButton = {
+    lazy var button: UIButton = {
         let button = UIButton(type: .system)
         button.addTarget(self, action: #selector(buttonAction), for: UIControl.Event.touchUpInside)
         button.setTitle("Awesome", for: UIControl.State.normal)

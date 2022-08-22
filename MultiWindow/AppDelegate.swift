@@ -43,7 +43,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 newWindow.frame.size = CGSize(width: frame.width, height: (frame.height/2) - 2)
             }, completion: nil)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            // To close the new window uncomment below code.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
                 self.close(window: newWindow)
             }
         }
